@@ -15,8 +15,8 @@ debug: $(TARGETS)
 clean:
 	rm -f $(TARGETS)
 
-%: %.c
-	$(CC) $(CFLAGS) -o $@ $< $(LIBS)
+# %: %.c
+#	$(CC) $(CFLAGS) -o $@ $< $(LIBS)
 
 
 main: main.c myalloc.c
