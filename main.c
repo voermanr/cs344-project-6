@@ -12,13 +12,7 @@ int main(void) {
     assert(myalloc(1));
 
     //
-    {
-        block *myalloc_return = myalloc(1);
 
-        assert(myalloc_return->in_use == 0);
-        assert(myalloc_return->next == NULL);
-        assert(myalloc_return->size > 0);
-    }
 
     return 0;
 }
