@@ -10,6 +10,8 @@
 
 #define PADDED_SIZE(x) ((x) + GET_PAD(x))
 
+#define PTR_OFFSET(p, offset) ((void*)((char *)(p) + (offset)))
+
 void myfree(void *p) {
 
 }
@@ -25,7 +27,7 @@ void *myalloc(int size) {
         head->in_use = 0;
     }
 
-    return head;
+    return PTR_OFFSET(head, PADDED_SIZE(sizeof(block)));
 }
 
 void print_data(block *head)
