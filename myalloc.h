@@ -11,6 +11,6 @@ typedef struct block block;
 
 void *myalloc(int size);
 //TODO: void myfree(void *p);
-void print_data(block *head);
+void print_data();
 
 #endif

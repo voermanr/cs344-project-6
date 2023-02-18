@@ -12,10 +12,10 @@
 
 #define PTR_OFFSET(p, offset) ((void*)((char *)(p) + (offset)))
 
+block *head = NULL;
+
 void *myalloc(int size) {
     size_t padded_block_size = PADDED_SIZE(sizeof(block));
-
-    block *head = NULL;
 
     if (!head) {
         head = mmap(NULL, MMAP_SIZE, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
@@ -35,8 +35,7 @@ void *myalloc(int size) {
     return NULL;
 }
 
-void print_data(block *head)
-{
+void print_data() {
     block *b = head;
 
     if (b == NULL) {
@@ -56,4 +55,29 @@ void print_data(block *head)
     }
 
     printf("\n");
+}
+
+int main(void) {
+
+    {
+        head = NULL;
+        void *p = NULL;
+        head = p;
+        print_data();
+        p = myalloc(700);
+        print_data();
+    }
+
+    {
+        void *p = NULL;
+
+        head = NULL;
+        print_data();
+        p = myalloc(16);
+        print_data();
+        p = myalloc(16);
+        printf("%p\n", p);
+    }
+
+    return 0;
 }
