@@ -1,23 +1,8 @@
-CC=gcc
-CFLAGS= -g -Wall -Wextra
-LIBS=
-
-SRCS=$(wildcard *.c)
-TARGETS=$(SRCS:.c=)
-
-.PHONY: all clean
-
-all: $(TARGETS)
-
-debug: CFLAGS += -Wextra -g -DDEBUG=1
-debug: $(TARGETS)
+debug:
+	gcc -g -Wall -Wextra -o main main.c myalloc.c
 
 clean:
 	rm -f $(TARGETS)
 
-# %: %.c
-#	$(CC) $(CFLAGS) -o $@ $< $(LIBS)
-
-
 main: main.c myalloc.c
-	gcc -Wall -Wall -o main main.c myalloc.c
+	gcc -g -Wall -Wextra -o main main.c myalloc.c
