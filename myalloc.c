@@ -12,22 +12,27 @@
 
 #define PTR_OFFSET(p, offset) ((void*)((char *)(p) + (offset)))
 
-void myfree(void *p) {
-
-}
-
 void *myalloc(int size) {
+    size_t padded_block_size = PADDED_SIZE(sizeof(block));
 
     block *head = NULL;
 
     if (!head) {
         head = mmap(NULL, MMAP_SIZE, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
         head->next = NULL;
-        head->size = MMAP_SIZE - PADDED_SIZE(sizeof(block));
+        head->size = MMAP_SIZE - padded_block_size;
         head->in_use = 0;
     }
 
-    return PTR_OFFSET(head, PADDED_SIZE(sizeof(block)));
+    block *current = head;
+    while (current) {
+        if(!current->in_use && PADDED_SIZE(size) < current->size) {
+            current->in_use = 1;
+            return PTR_OFFSET(current, padded_block_size);
+        }
+        current = current->next;
+    }
+    return NULL;
 }
 
 void print_data(block *head)

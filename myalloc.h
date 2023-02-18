@@ -10,7 +10,7 @@ struct block {
 typedef struct block block;
 
 void *myalloc(int size);
-void myfree(void *p);
+//TODO: void myfree(void *p);
 void print_data(block *head);
 
 #endif
