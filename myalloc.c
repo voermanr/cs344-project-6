@@ -1,5 +1,4 @@
 #include "myalloc.h"
-#include <stdlib.h>
 #include <sys/mman.h>
 #include <stdio.h>
 
@@ -12,27 +11,66 @@
 
 #define PTR_OFFSET(p, offset) ((void*)((char *)(p) + (offset)))
 
+#define PADDED_BLOCK_SIZE PADDED_SIZE(sizeof(block))
+
 block *head = NULL;
 
 void *myalloc(int size) {
-    size_t padded_block_size = PADDED_SIZE(sizeof(block));
-
-    if (!head) {
-        head = mmap(NULL, MMAP_SIZE, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
-        head->next = NULL;
-        head->size = MMAP_SIZE - padded_block_size;
-        head->in_use = 0;
-    }
+    if(!head) first_time();
 
     block *current = head;
+    return find_space(size, current);
+}
+
+void myfree(void *p) {
+    block *cur = head;
+    block *pblock = p - PADDED_BLOCK_SIZE;
+    while(cur) {
+        if (cur->in_use && pblock == cur){
+            cur->in_use = 0;
+        }
+
+        cur = cur->next;
+    }
+}
+
+void first_time() {
+    head = mmap(NULL, MMAP_SIZE, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
+    head->next = NULL;
+    head->size = MMAP_SIZE - PADDED_BLOCK_SIZE;
+    head->in_use = 0;
+}
+
+void *find_space(int size, block *current) {
+    int padded_size = PADDED_SIZE(size);
+
     while (current) {
-        if(!current->in_use && PADDED_SIZE(size) < current->size) {
+        int free_space = current->size - PADDED_BLOCK_SIZE;
+        if(!current->in_use && padded_size <= free_space) {
+            //Size < free - block size
+            if (padded_size < free_space) {
+                split_space(current, padded_size);
+            }
             current->in_use = 1;
-            return PTR_OFFSET(current, padded_block_size);
+
+            return PTR_OFFSET(current, PADDED_BLOCK_SIZE);
         }
         current = current->next;
     }
     return NULL;
+}
+
+void split_space(block *current, int desired_size) {
+    int current_size = current->size;
+    desired_size = PADDED_SIZE(desired_size);
+
+    current->in_use = 1;
+    current->size = PADDED_SIZE(desired_size);
+    current->next = current + desired_size;
+
+    block *next = current->next;
+    next->in_use = 0;
+    next->size = current_size - desired_size - PADDED_BLOCK_SIZE;
 }
 
 void print_data() {
@@ -62,21 +100,43 @@ int main(void) {
     {
         head = NULL;
         void *p = NULL;
-        head = p;
+        p = myalloc(512);
         print_data();
-        p = myalloc(700);
+
+        myfree(p);
         print_data();
     }
 
     {
-        void *p = NULL;
-
         head = NULL;
+        myalloc(10);
         print_data();
-        p = myalloc(16);
+        myalloc(20);
         print_data();
-        p = myalloc(16);
-        printf("%p\n", p);
+        myalloc(30);
+        print_data();
+        myalloc(40);
+        print_data();
+        myalloc(50);
+        print_data();
+    }
+
+    {
+        head = NULL;
+        void *p;
+
+        myalloc(10);
+        print_data();
+        p = myalloc(20);
+        print_data();
+        myalloc(30);
+        print_data();
+        myfree(p);
+        print_data();
+        myalloc(40);
+        print_data();
+        myalloc(10);
+        print_data();
     }
 
     return 0;

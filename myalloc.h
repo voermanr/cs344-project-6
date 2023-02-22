@@ -10,7 +10,14 @@ struct block {
 typedef struct block block;
 
 void *myalloc(int size);
-//TODO: void myfree(void *p);
+void myfree(void *p);
+
 void print_data();
+
+void split_space(block *current, int free_space);
+
+void *find_space(int size, block *current);
+
+void first_time();
 
 #endif
