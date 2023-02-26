@@ -66,7 +66,7 @@ void split_space(block *current, int desired_size) {
 
     current->in_use = 1;
     current->size = PADDED_SIZE(desired_size);
-    current->next = current + desired_size;
+    current->next = PTR_OFFSET(current,desired_size);
 
     block *next = current->next;
     next->in_use = 0;
@@ -105,6 +105,7 @@ int main(void) {
 
         myfree(p);
         print_data();
+        printf("\n");
     }
 
     {
@@ -119,6 +120,7 @@ int main(void) {
         print_data();
         myalloc(50);
         print_data();
+        printf("\n");
     }
 
     {
@@ -137,6 +139,7 @@ int main(void) {
         print_data();
         myalloc(10);
         print_data();
+        printf("\n");
     }
 
     return 0;
