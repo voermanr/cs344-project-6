@@ -15,6 +15,9 @@
 
 block *head = NULL;
 
+void week2tests();
+void week3tests();
+
 void *myalloc(int size) {
     if(!head) first_time();
 
@@ -25,12 +28,20 @@ void *myalloc(int size) {
 void myfree(void *p) {
     block *cur = head;
     block *pblock = p - PADDED_BLOCK_SIZE;
+
     while(cur) {
         if (cur->in_use && pblock == cur){
             cur->in_use = 0;
         }
-
         cur = cur->next;
+    }
+
+    cur = head;
+    while(cur) {
+        if (!cur->in_use && cur->next && !cur->next->in_use) {
+            cur->size += cur->next->size + PADDED_BLOCK_SIZE;
+            cur->next = cur->next->next;
+        } else cur = cur->next;
     }
 }
 
@@ -97,7 +108,15 @@ void print_data() {
 
 int main(void) {
 
+    week2tests();
+    week3tests();
+
+    return 0;
+}
+
+void week2tests() {
     {
+        printf("Week 2:\tExample 1\n==================\n");
         head = NULL;
         void *p = NULL;
         p = myalloc(512);
@@ -109,6 +128,7 @@ int main(void) {
     }
 
     {
+        printf("Week 2:\tExample 2\n==================\n");
         head = NULL;
         myalloc(10);
         print_data();
@@ -124,6 +144,7 @@ int main(void) {
     }
 
     {
+        printf("Week 2:\tExample 3\n==================\n");
         head = NULL;
         void *p;
 
@@ -141,6 +162,60 @@ int main(void) {
         print_data();
         printf("\n");
     }
+}
 
-    return 0;
+void week3tests() {
+    {
+        printf("Week 3:\tExample 1\n==================\n");
+        head = NULL;
+        void *p;
+
+        p = myalloc(10); print_data();
+
+        myfree(p); print_data();
+        printf("\n");
+    }
+
+    {
+        printf("Week 3:\tExample 2\n==================\n");
+        head = NULL;
+        void *p, *q;
+
+        p = myalloc(10); print_data();
+        q = myalloc(20); print_data();
+
+        myfree(p); print_data();
+        myfree(q); print_data();
+        printf("\n");
+    }
+
+    {
+        printf("Week 3:\tExample 3\n==================\n");
+        head = NULL;
+        void *p, *q;
+
+        p = myalloc(10); print_data();
+        q = myalloc(20); print_data();
+
+        myfree(q); print_data();
+        myfree(p); print_data();
+        printf("\n");
+    }
+
+    {
+        printf("Week 3:\tExample 4\n==================\n");
+        head = NULL;
+        void *p, *q, *r, *s;
+
+        p = myalloc(10); print_data();
+        q = myalloc(20); print_data();
+        r = myalloc(30); print_data();
+        s = myalloc(40); print_data();
+
+        myfree(q); print_data();
+        myfree(p); print_data();
+        myfree(s); print_data();
+        myfree(r); print_data();
+        printf("\n");
+    }
 }
